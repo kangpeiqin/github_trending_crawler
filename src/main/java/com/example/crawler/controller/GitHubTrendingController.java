@@ -14,10 +14,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.Cacheable;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ public class GitHubTrendingController {
             @ApiImplicitParam(name = "language", value = "查询语言", dataType = "String", paramType = "path"),
             @ApiImplicitParam(name = "since", value = "查询日期", dataType = "String", paramType = "query")
     })
+    @CrossOrigin("*")
     public ResultVo getGitHubTrending(@PathVariable(required = false) String language, @RequestParam(value = "since", required = false) String since) {
         return ResultVo.success(gitHubTrendingService.getGitHubTrending(language, since));
     }
@@ -54,8 +54,8 @@ public class GitHubTrendingController {
             Elements articles = doc.getElementsByClass("Box-row d-flex");
             articles.forEach(article -> {
                         Developer developer = new Developer();
-                        Element elementx = article.getElementsByClass("rounded-1 avatar-user").first();
-                        developer.setAvatar(elementx.attr("src"));
+                        Element user = article.getElementsByClass("rounded-1 avatar-user").first();
+                        developer.setAvatar(user.attr("src"));
                         Element element = article.getElementsByClass("h3 lh-condensed").first().getElementsByTag("a").first();
                         developer.setAuthor(element.text());
                         developer.setAccountLink(UriConstant.GITHUB_URI + element.attr("href"));
