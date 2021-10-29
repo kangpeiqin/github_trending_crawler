@@ -17,12 +17,21 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class CacheConfig {
 
-    @Bean("trendingCacheManager")
-    public CacheManager trendingCacheManager() {
+
+    public class CacheName {
+
+        public static final String TRENDING_HOT = "trending_hot";
+
+        public static final String HOT_DEVELOPS = "hot_develops";
+
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("github-cache", "trending"));
+        cacheManager.setCacheNames(Arrays.asList(CacheName.TRENDING_HOT,CacheName.HOT_DEVELOPS));
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterAccess(10, TimeUnit.MINUTES));
+                .expireAfterAccess(1, TimeUnit.DAYS));
         return cacheManager;
     }
 

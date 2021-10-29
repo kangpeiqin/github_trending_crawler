@@ -1,84 +1,108 @@
 package com.example.crawler.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Random;
 
 /**
- * @author kpq
- * @since 1.0.0
+ * @author KPQ
+ * @date 2021/10/26
  */
 @Slf4j
 public class HttpUtil {
 
-    private static final Map<String, String> REQUEST_HEADERS;
+    private HttpUtil() {
+    }
 
-    static {
-        REQUEST_HEADERS = new HashMap<>(16);
-        REQUEST_HEADERS.put("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        REQUEST_HEADERS.put("connection", "Keep-Alive");
-        REQUEST_HEADERS.put("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36");
+    public static Result get(String url) {
+        waitFor();
+        return get(url, new JSONObject());
+    }
+
+    public static Result get(String url, JSONObject pJson) {
+        waitFor();
+        //构建请求：请求参数、请求头、请求方法
+        HttpUriRequest httpGet = getBaseBuilder(HttpGet.METHOD_NAME)
+                .setUri(url)
+                .addParameters(getPairList(pJson))
+                .build();
+        //向服务器发送请求
+        return clientExe(httpGet);
+    }
+
+    public static NameValuePair[] getPairList(JSONObject pJson) {
+        return pJson.entrySet().parallelStream().map(HttpUtil::getNameValuePair).toArray(NameValuePair[]::new);
+    }
+
+    private static NameValuePair getNameValuePair(Map.Entry<String, Object> entry) {
+        return new BasicNameValuePair(entry.getKey(), StringUtil.get(entry.getValue()));
+    }
+
+    public static Result clientExe(HttpUriRequest request) {
+        //创建HTTP请求客户端
+        Result result = new Result().setStatusCode(500);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            //执行请求
+            HttpResponse resp = client.execute(request);
+            //获取请求结果
+            HttpEntity entity = resp.getEntity();
+            String respContent = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+            return result.setData(respContent).setStatusCode(resp.getStatusLine().getStatusCode());
+        } catch (Exception e) {
+            log.info("💔{}请求错误 : ", request.getMethod(), e);
+            return result;
+        }
+    }
+
+    private static RequestBuilder getBaseBuilder(final String method) {
+        return RequestBuilder.create(method)
+                .addHeader("connection", "keep-alive")
+                .addHeader("User-Agent", UserAgent.getOne());
     }
 
     /**
-     * httpClient发送get请求封装
-     *
-     * @param uri    请求的url
-     * @param params 请求参数
-     * @return 抓取的网页
+     * 设置为每次请求预等待 0-3 秒钟
      */
-    public static String httpGet(String uri, Map<String, String> params) {
-        //获取httpclient客户端
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        String resultString = "";
-        CloseableHttpResponse response = null;
+    public static void waitFor() {
         try {
-            URIBuilder uriBuilder = new URIBuilder(uri);
-            if (null != params) {
-                //遍历和封装请求参数
-                for (String key : params.keySet()) {
-                    uriBuilder.setParameter(key, params.get(key));
-                }
-            }
-            HttpGet httpGet = new HttpGet(uriBuilder.build());
-            //设置http请求头
-            for (Map.Entry<String, String> head : REQUEST_HEADERS.entrySet()) {
-                httpGet.addHeader(head.getKey(), head.getValue());
-            }
-            //执行get请求获取相应
-            response = httpclient.execute(httpGet);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                HttpEntity entity = response.getEntity();
-                resultString = EntityUtils.toString(entity, "utf-8");
-            }
+            Thread.sleep(new Random().nextInt(4) * 1000);
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (null != response) {
-                try {
-                    response.close();
-                } catch (IOException e) {
-                    log.error("关闭响应流出错：{}", e.getMessage());
-                }
-            }
-            if (null != httpclient) {
-                try {
-                    httpclient.close();
-                } catch (IOException e) {
-                    log.error("关闭httpClient流出错：{}", e.getMessage());
-                }
-            }
+            log.warn("等待过程中出错", e);
         }
-        return resultString;
     }
+
+    private static class UserAgent {
+        public static String getOne() {
+            int firstNum = new Random().nextInt(30) + 55;
+            int thirdNum = new Random().nextInt(3200);
+            int fourthNum = new Random().nextInt(140);
+            String[] osType = {
+                    "(Windows NT 6.1; WOW64)",
+                    "(Windows NT 10.0; WOW64)",
+                    "(X11; Linux x86_64)",
+                    "(Macintosh; Intel Mac OS X 10_12_6)"};
+            int index = new Random().nextInt(osType.length);
+            String chromeVersion = "Chrome/" + firstNum + ".0." + thirdNum + "." + fourthNum;
+            return "Mozilla/5.0 "
+                    + osType[index]
+                    + " AppleWebKit/537.36"
+                    + " (KHTML, like Gecko) "
+                    + chromeVersion
+                    + " Safari/537.36";
+        }
+    }
+
 }

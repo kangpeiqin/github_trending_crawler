@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Data
 @ApiModel(value = "GithubRepository", description = "github仓库信息")
-public class Repository {
+public class GithubRepository {
     @ApiModelProperty("标题")
     private String title;
     @ApiModelProperty("作者")

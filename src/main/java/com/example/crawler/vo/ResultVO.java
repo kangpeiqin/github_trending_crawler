@@ -9,22 +9,22 @@ import org.springframework.http.HttpStatus;
  * @since 1.0.0
  */
 @Data
-public class ResultVo<T> {
+public class ResultVO<T> {
     private Integer code;
     private String msg;
     private T data;
 
 
-    public static <T> ResultVo<T> success(T data) {
-        ResultVo<T> resultVo = new ResultVo<>();
+    public static <T> ResultVO<T> success(T data) {
+        ResultVO<T> resultVo = new ResultVO<>();
         resultVo.setCode(HttpStatus.OK.value());
         resultVo.setMsg(HttpStatus.OK.getReasonPhrase());
         resultVo.setData(data);
         return resultVo;
     }
 
-    public static <T> ResultVo<T> error(Integer code, String msg) {
-        ResultVo<T> resultVo = new ResultVo<>();
+    public static <T> ResultVO<T> error(Integer code, String msg) {
+        ResultVO<T> resultVo = new ResultVO<>();
         resultVo.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
         resultVo.setMsg(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         return resultVo;
