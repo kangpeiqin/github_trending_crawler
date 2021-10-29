@@ -6,8 +6,10 @@
 ### 说明
 - `HTML` 解析库: `jsoup`
 - `HTTP` 请求：`httpclient`
-- 相应格式：
+### 响应 Json 数据格式：
 > 热门项目：
+- 请求接口：`http://localhost:8082/trending/java?since=daily`
+- 响应数据：
 ```
 {
     "code": 200,
@@ -47,25 +49,30 @@
   ...
 ```
 > 热门开发者：
+- 请求接口：`http://localhost:8082/hot/develops/java?since=daily`
+- 响应数据： 
 ```
-[
-    {
-        "author":"Yair Morgenstern",
-        "avatar":"https://avatars.githubusercontent.com/u/8366208?s=96&v=4",
-        "accountLink":"https://github.com/yairm210",
-        "popularRepoName":"Unciv",
-        "popularRepoUrl":"https://github.com/yairm210/Unciv",
-        "popularRepoDescription":"Open-source Android/Desktop remake of Civ V"
-    },
-    {
-        "author":"Tim Pope",
-        "avatar":"https://avatars.githubusercontent.com/u/378?s=96&v=4",
-        "accountLink":"https://github.com/tpope",
-        "popularRepoName":"vim-fugitive",
-        "popularRepoUrl":"https://github.com/tpope/vim-fugitive",
-        "popularRepoDescription":"fugitive.vim: A Git wrapper so awesome, it should be illegal"
-    },
-    ...
+{
+    "code":200,
+    "msg":"OK",
+    "data":[
+        {
+            "author":"Mattia Iavarone",
+            "avatar":"https://avatars.githubusercontent.com/u/15526561?s=96&v=4",
+            "accountLink":"https://github.com/natario1",
+            "popularRepoName":"CameraView",
+            "popularRepoUrl":"https://github.com/natario1/CameraView",
+            "popularRepoDescription":"\uD83D\uDCF8 A well documented, high-level Android interface that makes capturing pictures and videos easy, addressing all of the common issues and needs. Real-time filters, gestures, watermarks, frame processing, RAW, output of any size."
+        },
+        {
+            "author":"Nathan Rajlich",
+            "avatar":"https://avatars.githubusercontent.com/u/71256?s=96&v=4",
+            "accountLink":"https://github.com/TooTallNate",
+            "popularRepoName":"Java-WebSocket",
+            "popularRepoUrl":"https://github.com/TooTallNate/Java-WebSocket",
+            "popularRepoDescription":"A barebones WebSocket client and server implementation written in 100% Java."
+        },
+     ...
 ```
 ### 界面展示
 - 热门项目
