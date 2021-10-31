@@ -1,11 +1,13 @@
 ## Java GitHub Trending Crawler
 ### 简介
 相信很多开发者都有逛 GitHub 的习惯，会去看 GitHub Trending，关注每个时段 GitHub 上面的热门项目。
-但是我们常常遇到访问速度比较慢的问题。这个仓库提供了一个 Java 小爬虫，用于在服务端抓取解析 GitHub Trending 数据并缓存。
-该项目基于 SpringBoot ，以提供给客户端快速的查询接口。
+但是我们常常遇到访问速度比较慢的问题，另外，我们在开发第三方 GitHub 应用时，通常也需要展示 Trending 数据，由于 GitHub 官方提供的 API 并不包含 GitHub Trending 相关的接口，如果直接在客户端抓取解析，可能速度会比较慢。
+这个仓库提供了一个 Java 小爬虫，用于在服务端抓取解析 GitHub Trending 数据并缓存。
+该项目基于 SpringBoot ，以提供给客户端快速的查询接口。可以分别以编程语言（Java、Python、Go、C...）和时间（Daily、Weekly、Monthly）为维度抓取最受关注的 Repositories 和 Developers。
 ### 说明
-- `HTML` 解析库: `jsoup`
-- `HTTP` 请求：`httpclient`
+- GitHub 网页数据获取：`httpclient`
+- HTML 解析: `jsoup`
+- 数据缓存：`caffeine cache`
 ### 响应 Json 数据格式：
 > 热门项目：
 - 请求接口：`http://localhost:8082/trending/java?since=daily`
